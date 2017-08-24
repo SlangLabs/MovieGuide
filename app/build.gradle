@@ -86,6 +86,9 @@ dependencies {
     compile 'com.squareup.moshi:moshi:1.1.0'
     compile 'com.jakewharton:butterknife:7.0.1'
 
+    // Slang Labs
+    compile(name:'slangclient_lib', ext:'aar')
+
     // Dependency Injection
     apt "com.google.dagger:dagger-compiler:${daggerVersion}"
     compile "com.google.dagger:dagger:${daggerVersion}"

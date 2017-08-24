@@ -2,6 +2,7 @@ package com.esoxjem.movieguide.listing;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -11,6 +12,12 @@ import com.esoxjem.movieguide.Constants;
 import com.esoxjem.movieguide.details.MovieDetailsActivity;
 import com.esoxjem.movieguide.details.MovieDetailsFragment;
 import com.esoxjem.movieguide.Movie;
+
+import com.slanglabs.slang.SlangClient;
+import com.slanglabs.slang.SlangIntentMapper;
+import com.slanglabs.slang.SlangIntentMapperBuilder;
+
+import java.util.Map;
 
 public class MoviesListingActivity extends AppCompatActivity implements MoviesListingFragment.Callback
 {
@@ -37,6 +44,34 @@ public class MoviesListingActivity extends AppCompatActivity implements MoviesLi
         } else
         {
             twoPaneMode = false;
+        }
+
+        // Slang Labs Intent Mapper
+        SlangIntentMapper intentMapper = new SlangIntentMapperBuilder()
+                .handle(new String[]{"statement"}, new SlangIntentMapper.Callback() {
+                    @Override
+                    public void onIntent(String intent, Map<String, Object> entities) {
+
+                    }
+                })
+                .build();
+
+        // Create a local Client object
+
+        SlangClient client = new SlangClient(this)
+                //.setMode(SlangClient.SlangMode.LOCAL) // comment this for global client
+                .setIntentMapper(intentMapper)
+                .activate();
+
+        if (client.hasErrors()) {
+            String error = client.getNextError().toString();
+            AlertDialog.Builder builder =
+                    new AlertDialog.Builder(this);
+
+            builder
+                    .setTitle("Slang Error")
+                    .setMessage(error)
+                    .show();
         }
     }
 
