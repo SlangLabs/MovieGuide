@@ -1,5 +1,7 @@
 package com.esoxjem.movieguide.listing;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -13,9 +15,10 @@ import com.esoxjem.movieguide.details.MovieDetailsActivity;
 import com.esoxjem.movieguide.details.MovieDetailsFragment;
 import com.esoxjem.movieguide.Movie;
 
-import com.slanglabs.slang.SlangClient;
-import com.slanglabs.slang.SlangIntentMapper;
-import com.slanglabs.slang.SlangIntentMapperBuilder;
+//import com.slanglabs.slang.SlangClient;
+//import com.slanglabs.slang.SlangError;
+//import com.slanglabs.slang.SlangIntentMapper;
+//import com.slanglabs.slang.SlangIntentMapperBuilder;
 
 import java.util.Map;
 
@@ -25,54 +28,67 @@ public class MoviesListingActivity extends AppCompatActivity implements MoviesLi
     private boolean twoPaneMode;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setToolbar();
 
-        if (findViewById(R.id.movie_details_container) != null)
-        {
+        if (findViewById(R.id.movie_details_container) != null) {
             twoPaneMode = true;
 
-            if (savedInstanceState == null)
-            {
+            if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.movie_details_container, new MovieDetailsFragment())
-                        .commit();
+                    .replace(R.id.movie_details_container, new MovieDetailsFragment())
+                    .commit();
             }
-        } else
-        {
+        } else {
             twoPaneMode = false;
         }
 
-        // Slang Labs Intent Mapper
-        SlangIntentMapper intentMapper = new SlangIntentMapperBuilder()
-                .handle(new String[]{"statement"}, new SlangIntentMapper.Callback() {
-                    @Override
-                    public void onIntent(String intent, Map<String, Object> entities) {
-
-                    }
-                })
-                .build();
-
-        // Create a local Client object
-
-        SlangClient client = new SlangClient(this)
-                //.setMode(SlangClient.SlangMode.LOCAL) // comment this for global client
-                .setIntentMapper(intentMapper)
-                .activate();
-
-        if (client.hasErrors()) {
-            String error = client.getNextError().toString();
-            AlertDialog.Builder builder =
-                    new AlertDialog.Builder(this);
-
-            builder
-                    .setTitle("Slang Error")
-                    .setMessage(error)
-                    .show();
-        }
+//        // Slang Labs Intent Mapper
+//        SlangIntentMapper intentMapper = new SlangIntentMapperBuilder()
+//                .handle(new String[]{"statement"}, new SlangIntentMapper.Callback() {
+//                    @Override
+//                    public void onIntent(String intent, Map<String, Object> entities) {
+//
+//                    }
+//                })
+//                .build();
+//
+//        // Create a local Client object
+//
+//        final Context that = this;
+//
+//        SlangClient client = new SlangClient(this)
+//                //.setMode(SlangClient.SlangMode.LOCAL) // comment this for global client
+//                .setIntentMapper(intentMapper)
+//                .startAsync(new SlangClient.Listener() {
+//                    @Override
+//                    public void onStart() {
+//                        // Nothing to do for now
+//                    }
+//
+//                    @Override
+//                    public void onTrigger() {
+//                        // The voice interaction has been started
+//                    }
+//
+//                    @Override
+//                    public void onError(final SlangError error) {
+//                        ((Activity) that).runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                AlertDialog.Builder builder =
+//                                    new AlertDialog.Builder(that);
+//
+//                                builder
+//                                    .setTitle("Slang Error")
+//                                    .setMessage(error.toString())
+//                                    .show();
+//                            }
+//                        });
+//                    }
+//                });
     }
 
     private void setToolbar()
