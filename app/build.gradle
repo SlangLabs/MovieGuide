@@ -87,8 +87,10 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
 
     // Slang Labs
-    compile 'com.slanglabs:slangclient_lib:0.0.1-alpha@aar'
-    compile 'com.google.protobuf:protobuf-java:3.4.0'
+    compile project(':slangclient_lib')
+
+//    compile 'com.slanglabs:slangclient_lib:0.0.1-alpha@aar'
+//    compile 'com.google.protobuf:protobuf-java:3.4.0'
 
     // Dependency Injection
     apt "com.google.dagger:dagger-compiler:${daggerVersion}"

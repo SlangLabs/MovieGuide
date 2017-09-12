@@ -27,10 +27,12 @@ public class MoviesListingParser
     private static final String BACKDROP_PATH = "backdrop_path";
     private static final String ID = "id";
 
+    private static List<Movie> sMovies;
+
     @NonNull
     public static List<Movie> parse(String json) throws JSONException
     {
-        List<Movie> movies = new ArrayList<>(24);
+        sMovies = new ArrayList<>(24);
         JSONObject response = new JSONObject(json);
 
         if (!response.isNull(RESULTS))
@@ -39,7 +41,7 @@ public class MoviesListingParser
 
             for (int i = 0; i < results.length(); i++)
             {
-                movies.add(getMovie(results.getJSONObject(i)));
+                sMovies.add(getMovie(results.getJSONObject(i)));
             }
 
         } else
@@ -47,7 +49,11 @@ public class MoviesListingParser
             // No results
         }
 
-        return movies;
+        return sMovies;
+    }
+
+    public static List<Movie> getMovies() {
+        return sMovies;
     }
 
     @NonNull

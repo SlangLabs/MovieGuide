@@ -1,6 +1,8 @@
 package com.esoxjem.movieguide.details;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -27,9 +30,16 @@ import com.esoxjem.movieguide.Movie;
 import com.esoxjem.movieguide.R;
 import com.esoxjem.movieguide.Review;
 import com.esoxjem.movieguide.Video;
+import com.esoxjem.movieguide.listing.MoviesListingParser;
+import com.slanglabs.slang.SlangClient;
+import com.slanglabs.slang.SlangError;
+import com.slanglabs.slang.SlangIntentMapper;
+import com.slanglabs.slang.SlangIntentMapperBuilder;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -70,6 +80,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView, 
     Toolbar toolbar;
 
     private Movie movie;
+    private List<String> trailerUrls = new ArrayList<>();
 
     public MovieDetailsFragment()
     {
@@ -91,6 +102,61 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView, 
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         ((BaseApplication) getActivity().getApplication()).createDetailsComponent().inject(this);
+
+        final MovieDetailsFragment that = this;
+
+        // Slang Labs Intent Mapper
+        SlangIntentMapper intentMapper = new SlangIntentMapperBuilder()
+            .handle(new String[]{"type1"}, new SlangIntentMapper.Callback() {
+                @Override
+                public void onIntentDetected(
+                    Context context,
+                    String intent,
+                    Map<String, String> entities
+                ) {
+                    onThumbnailClick(that.trailerUrls.get(0));
+//                            AlertDialog.Builder builder =
+//                                new AlertDialog.Builder(context);
+//
+//                            builder
+//                                .setTitle("Slang Response")
+//                                .setMessage("Got intent - " + intent)
+//                                .show();
+                }
+            })
+            .build();
+
+        // Create a local Client object
+        SlangClient client = new SlangClient(this.getActivity())
+            .setMode(SlangClient.SlangMode.LOCAL) // comment this for global client
+            .setIntentMapper(intentMapper)
+            .startAsync(new SlangClient.Listener() {
+                @Override
+                public void onStart(Context context) {
+                    // Nothing to do for now
+                }
+
+                @Override
+                public void onTrigger(Context context) {
+                    // The voice interaction has been started
+                }
+
+                @Override
+                public void onError(Context context, final SlangError error) {
+                    ((Activity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AlertDialog.Builder builder =
+                                new AlertDialog.Builder(context);
+
+                            builder
+                                .setTitle("Slang Error")
+                                .setMessage(error.toString())
+                                .show();
+                        }
+                    });
+                }
+            });
     }
 
     @Override
@@ -187,6 +253,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView, 
                         .placeholder(R.color.colorPrimary)
                         .into(thumbView);
                 this.trailers.addView(thumbContainer);
+                this.trailerUrls.add(Video.getUrl(trailer));
             }
         }
     }
@@ -236,7 +303,7 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView, 
         switch (view.getId())
         {
             case R.id.video_thumb:
-                onThumbnailClick(view);
+                onThumbnailClick((String) view.getTag());
                 break;
 
             case R.id.review_content:
@@ -263,9 +330,8 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView, 
         }
     }
 
-    private void onThumbnailClick(View view)
+    private void onThumbnailClick(String videoUrl)
     {
-        String videoUrl = (String) view.getTag();
         Intent playVideoIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
         startActivity(playVideoIntent);
     }
