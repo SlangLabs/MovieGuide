@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 
 import com.esoxjem.movieguide.R;
@@ -18,12 +20,11 @@ import com.esoxjem.movieguide.Movie;
 import com.slanglabs.slang.SlangClient;
 import com.slanglabs.slang.SlangError;
 import com.slanglabs.slang.SlangIntentMapper;
-import com.slanglabs.slang.SlangIntentMapperBuilder;
 
 import java.util.List;
 import java.util.Map;
 
-public class MoviesListingActivity extends AppCompatActivity implements MoviesListingFragment.Callback
+public class MoviesListingActivity extends AppCompatActivity implements MoviesListingFragment.Callback, SlangClient.Listener
 {
     public static final String DETAILS_FRAGMENT = "DetailsFragment";
     private boolean twoPaneMode;
@@ -47,8 +48,7 @@ public class MoviesListingActivity extends AppCompatActivity implements MoviesLi
         }
 
         // Slang Labs Intent Mapper
-        SlangIntentMapper intentMapper = new SlangIntentMapperBuilder()
-                .handle(new String[]{"type1"}, new SlangIntentMapper.Callback() {
+        SlangClient.Callback cb = new SlangClient.Callback() {
                     @Override
                     public void onIntentDetected(
                         Context context,
@@ -64,28 +64,20 @@ public class MoviesListingActivity extends AppCompatActivity implements MoviesLi
                             }
                         }
                     }
-                })
-                .build();
+                };
 
-        // Create a local Client object
-        SlangClient client = new SlangClient(this)
-                .setMode(SlangClient.SlangMode.LOCAL) // comment this for global client
-                .setIntentMapper(intentMapper)
-                .startAsync(new SlangClient.Listener() {
-                    @Override
-                    public void onStart(Context context) {
-                        // Nothing to do for now
-                    }
+        SlangClient.getInstance()
+            .init(this)
+            .setAPIKey("3dd1f449-d4d0-4389-b64f-821a9982d61b")
+            .registerIntents(new String[]{"intent_capture"}, cb);
 
-                    @Override
-                    public void onTrigger(Context context) {
-                        // The voice interaction has been started
-                    }
+    }
 
-                    @Override
-                    public void onError(Context context, final SlangError error) {
-                    }
-                });
+    @Override
+    public void onResume() {
+        super.onResume();
+        SlangClient.getInstance()
+            .show(this);
     }
 
     private void setToolbar()
@@ -146,5 +138,20 @@ public class MoviesListingActivity extends AppCompatActivity implements MoviesLi
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.movie_details_container, movieDetailsFragment, DETAILS_FRAGMENT)
                 .commit();
+    }
+
+    @Override
+    public void onSlangStart() {
+        Log.d("SlangClient", "Started client callback..");
+    }
+
+    @Override
+    public void onSlangTrigger() {
+        Log.d("SlangClient", "Triggered client callback..");
+    }
+
+    @Override
+    public void onSlangError(SlangError error) {
+
     }
 }

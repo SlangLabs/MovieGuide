@@ -34,7 +34,6 @@ import com.esoxjem.movieguide.listing.MoviesListingParser;
 import com.slanglabs.slang.SlangClient;
 import com.slanglabs.slang.SlangError;
 import com.slanglabs.slang.SlangIntentMapper;
-import com.slanglabs.slang.SlangIntentMapperBuilder;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -106,57 +105,33 @@ public class MovieDetailsFragment extends Fragment implements MovieDetailsView, 
         final MovieDetailsFragment that = this;
 
         // Slang Labs Intent Mapper
-        SlangIntentMapper intentMapper = new SlangIntentMapperBuilder()
-            .handle(new String[]{"type1"}, new SlangIntentMapper.Callback() {
-                @Override
-                public void onIntentDetected(
-                    Context context,
-                    String intent,
-                    Map<String, String> entities
-                ) {
-                    onThumbnailClick(that.trailerUrls.get(0));
-//                            AlertDialog.Builder builder =
-//                                new AlertDialog.Builder(context);
-//
-//                            builder
-//                                .setTitle("Slang Response")
-//                                .setMessage("Got intent - " + intent)
-//                                .show();
-                }
-            })
-            .build();
+        SlangClient.Callback cb = new SlangClient.Callback() {
+            @Override
+            public void onIntentDetected(
+                Context context,
+                String intent,
+                Map<String, String> entities
+            ) {
+                List<Movie> movies = MoviesListingParser.getMovies();
 
-        // Create a local Client object
-        SlangClient client = new SlangClient(this.getActivity())
-            .setMode(SlangClient.SlangMode.LOCAL) // comment this for global client
-            .setIntentMapper(intentMapper)
-            .startAsync(new SlangClient.Listener() {
-                @Override
-                public void onStart(Context context) {
-                    // Nothing to do for now
+                for (Movie movie: movies) {
+                    if (movie.getTitle().contains("Spider")) {
+                        onThumbnailClick(that.trailerUrls.get(0));
+                        break;
+                    }
                 }
+            }
+        };
 
-                @Override
-                public void onTrigger(Context context) {
-                    // The voice interaction has been started
-                }
+        SlangClient.getInstance()
+            .registerIntents(new String[]{"intent_capture"}, cb);
+    }
 
-                @Override
-                public void onError(Context context, final SlangError error) {
-                    ((Activity) context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            AlertDialog.Builder builder =
-                                new AlertDialog.Builder(context);
-
-                            builder
-                                .setTitle("Slang Error")
-                                .setMessage(error.toString())
-                                .show();
-                        }
-                    });
-                }
-            });
+    @Override
+    public void onResume() {
+        super.onResume();
+        SlangClient.getInstance()
+            .show(this.getActivity());
     }
 
     @Override

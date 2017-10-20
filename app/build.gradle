@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'me.tatarka.retrolambda'
+//apply plugin: 'me.tatarka.retrolambda'
 
 def getProperty(String filename, String propName) {
     def propsFile = rootProject.file(filename)
@@ -19,7 +18,7 @@ def getProperty(String filename, String propName) {
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         applicationId "com.esoxjem.movieguide"
@@ -93,7 +92,8 @@ dependencies {
 //    compile 'com.google.protobuf:protobuf-java:3.4.0'
 
     // Dependency Injection
-    apt "com.google.dagger:dagger-compiler:${daggerVersion}"
+    annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
+    annotationProcessor 'com.jakewharton:butterknife:7.0.1'
     compile "com.google.dagger:dagger:${daggerVersion}"
     provided 'javax.annotation:jsr250-api:1.0'
 

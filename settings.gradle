@@ -1,4 +1,4 @@
 include ':app'
 include 'slangclient_lib'
 
-project(':slangclient_lib').projectDir = new File('/Users/krangarajan/source/polyglot/client/android/slangclient/slangclient_lib')
+project(':slangclient_lib').projectDir = new File('/Users/krangarajan/source/polyglot/client/slang-android-sdk/slangclient_lib')
